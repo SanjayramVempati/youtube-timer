@@ -18,6 +18,7 @@
     <div class="flex justify-center space-x-4">
       <button id="startBtn" onclick="startTimer()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
       <button id="resetBtn" onclick="resetTimer()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
+      <button id="muteBtn" onclick="toggleMute()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Unmute</button>
     </div>
     <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes" class="mt-4 p-2 w-full text-black rounded hidden focus:outline-none focus:ring-2 focus:ring-blue-500">
   </div>
@@ -29,35 +30,53 @@
     let timer;
     let timeLeft = 0; // Time in seconds
     let isRunning = false;
+    let player;
     const timerDisplay = document.getElementById('timerDisplay');
     const timeInput = document.getElementById('timeInput');
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const muteBtn = document.getElementById('muteBtn');
     const alarmSound = document.getElementById('alarmSound');
 
     // YouTube IFrame API
-    let player;
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: 'EoIU_JU2bHY', // Replace with desired YouTube video ID
+        videoId: 'dQw4w9WgXcQ', // Replace with desired YouTube video ID
         playerVars: {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: 'EoIU_JU2bHY', // Same video ID for looping
+          playlist: 'dQw4w9WgXcQ', // Same video ID for looping
           modestbranding: 1,
-          mute: 0
+          mute: 1 // Start muted to comply with autoplay policies
         },
         events: {
-          'onReady': onPlayerReady
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
         }
       });
     }
 
     function onPlayerReady(event) {
       event.target.playVideo();
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        event.target.playVideo(); // Ensure looping
+      }
+    }
+
+    function toggleMute() {
+      if (player.isMuted()) {
+        player.unMute();
+        muteBtn.textContent = 'Mute';
+      } else {
+        player.mute();
+        muteBtn.textContent = 'Unmute';
+      }
     }
 
     // Timer Functions
