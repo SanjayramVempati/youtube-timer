@@ -15,8 +15,9 @@
   <div class="relative z-20 text-center p-6 rounded-lg max-w-md w-full">
     <div id="timerDisplay" class="text-5xl font-mono mb-4 cursor-pointer" onclick="setTimer()">00:00</div>
     <div id="controls" class="flex flex-col items-center space-y-4">
-      <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+   
       <div class="flex justify-center space-x-4">
+           <input id="timeInput" type="number" min="1" max="200" placeholder="60" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         <button id="startBtn" onclick="startTimer()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
         <button id="resetBtn" onclick="resetTimer()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
         <button id="muteBtn" onclick="toggleMute()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
