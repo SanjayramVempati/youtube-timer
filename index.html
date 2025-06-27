@@ -1,0 +1,163 @@
+<script type="text/javascript">
+  var gk_isXlsx = false;
+  var gk_xlsxFileLookup = {};
+  var gk_fileData = {};
+  function filledCell(cell) {
+    return cell !== '' && cell != null;
+  }
+  function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+      try {
+        var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+        var firstSheetName = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert sheet to JSON to filter blank rows
+        var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+        // Filter out blank rows (rows where all cells are empty, null, or undefined)
+        var filteredData = jsonData.filter(row => row.some(filledCell));
+
+        // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+        var headerRowIndex = filteredData.findIndex((row, index) =>
+          row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+        );
+        // Fallback
+        if (headerRowIndex === -1 || headerRowIndex > 25) {
+          headerRowIndex = 0;
+        }
+
+        // Convert filtered JSON back to CSV
+        var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+        csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+        return csv;
+      } catch (e) {
+        console.error(e);
+        return "";
+      }
+    }
+    return gk_fileData[filename] || "";
+  }
+</script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer with YouTube Background</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen relative">
+  <!-- YouTube Video Background -->
+  <div id="player" class="absolute inset-0 z-0"></div>
+  <div class="absolute inset-0 bg-black opacity-50 z-10"></div>
+
+  <!-- Timer Interface -->
+  <div class="relative z-20 text-center p-6 bg-gray-800 bg-opacity-80 rounded-lg shadow-lg max-w-md w-full">
+    <h1 class="text-3xl font-bold mb-6">Countdown Timer</h1>
+    <div id="timerDisplay" class="text-5xl font-mono mb-4 cursor-pointer" onclick="setTimer()">00:00</div>
+    <div class="flex justify-center space-x-4">
+      <button id="startBtn" onclick="startTimer()"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
+      <button id="resetBtn" onclick="resetTimer()"
+        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
+    </div>
+    <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes"
+      class="mt-4 p-2 w-full text-black rounded hidden focus:outline-none focus:ring-2 focus:ring-blue-500">
+  </div>
+
+  <!-- Audio for Alarm -->
+  <audio id="alarmSound" src="https://www.soundjay.com/buttons/beep-01a.mp3"></audio>
+
+  <script>
+    let timer;
+    let timeLeft = 0; // Time in seconds
+    let isRunning = false;
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timeInput = document.getElementById('timeInput');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const alarmSound = document.getElementById('alarmSound');
+
+    // YouTube IFrame API
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH', // Replace with desired YouTube video ID
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: 'rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH', // Same video ID for looping
+          modestbranding: 1,
+          mute: 0
+        },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      event.target.playVideo();
+    }
+
+    // Timer Functions
+    function setTimer() {
+      if (!isRunning) {
+        timeInput.classList.remove('hidden');
+        timeInput.focus();
+        timeInput.addEventListener('change', () => {
+          const minutes = parseInt(timeInput.value);
+          if (minutes > 0 && minutes <= 60) {
+            timeLeft = minutes * 60; // Convert minutes to seconds
+            updateDisplay();
+          }
+          timeInput.classList.add('hidden');
+          timeInput.value = '';
+        });
+      }
+    }
+
+    function startTimer() {
+      if (timeLeft <= 0 || isRunning) return;
+      isRunning = true;
+      startBtn.textContent = 'Pause';
+      timer = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          isRunning = false;
+          startBtn.textContent = 'Start';
+          alarmSound.play();
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      timeLeft = 0;
+      startBtn.textContent = 'Start';
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Load YouTube IFrame API
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  </script>
+</body>
+
+</html>
