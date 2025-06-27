@@ -15,9 +15,8 @@
   <div class="relative z-20 text-center p-6 rounded-lg max-w-md w-full">
     <div id="timerDisplay" class="text-5xl font-mono mb-4 cursor-pointer" onclick="setTimer()">00:00</div>
     <div id="controls" class="flex flex-col items-center space-y-4">
-     
+      <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
       <div class="flex justify-center space-x-4">
-          <input id="timeInput" type="number" min="1" max="120" placeholder="60" class="p-2 w-full text-black rounded hidden focus:outline-none focus:ring-2 focus:ring-blue-500">
         <button id="startBtn" onclick="startTimer()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
         <button id="resetBtn" onclick="resetTimer()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
         <button id="muteBtn" onclick="toggleMute()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
@@ -26,10 +25,9 @@
           </svg>
         </button>
       </div>
-       <input id="videoIdInput" type="text" placeholder="Enter YouTube Video ID" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button onclick="loadVideo()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Load Video</button>
       <button id="hideControlsBtn" onclick="hideControls()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Hide Controls</button>
-    
+      <input id="videoIdInput" type="text" placeholder="Enter YouTube Video ID" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button onclick="loadVideo()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Load Video</button>
     </div>
     <button id="showControlsBtn" onclick="showControls()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 hidden mt-4">Show Controls</button>
   </div>
@@ -59,12 +57,12 @@
       player = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: 'jfKfPfyJRdk', // Default video ID
+        videoId: 'dQw4w9WgXcQ', // Default video ID
         playerVars: {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: 'jfKfPfyJRdk', // Same video ID for looping
+          playlist: 'dQw4w9WgXcQ', // Same video ID for looping
           modestbranding: 1,
           mute: 1 // Start muted to comply with autoplay policies
         },
@@ -122,17 +120,12 @@
     // Timer Functions
     function setTimer() {
       if (!isRunning) {
-        timeInput.classList.remove('hidden');
-        timeInput.focus();
-        timeInput.addEventListener('change', () => {
-          const minutes = parseInt(timeInput.value);
-          if (minutes > 0 && minutes <= 60) {
-            timeLeft = minutes * 60; // Convert minutes to seconds
-            updateDisplay();
-          }
-          timeInput.classList.add('hidden');
-          timeInput.value = '';
-        });
+        const minutes = parseInt(timeInput.value);
+        if (minutes > 0 && minutes <= 60) {
+          timeLeft = minutes * 60; // Convert minutes to seconds
+          updateDisplay();
+          timeInput.value = ''; // Clear input after setting
+        }
       }
     }
 
