@@ -3,24 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Countdown Timer with YouTube Background</title>
+  <title>Timer App</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen relative">
+<body class="bg-gray-900 text-white font-['Roboto'] flex items-center justify-center min-h-screen relative">
   <!-- YouTube Video Background -->
   <div id="player" class="absolute inset-0 z-0"></div>
-  <div class="absolute inset-0 bg-black opacity-50 z-10"></div>
 
   <!-- Timer Interface -->
-  <div class="relative z-20 text-center p-6 bg-gray-800 bg-opacity-0 rounded-lg shadow-lg max-w-md w-full">
-<!--     <h1 class="text-3xl font-bold mb-6">Countdown Timer</h1> -->
+  <div class="relative z-20 text-center p-6 rounded-lg max-w-md w-full">
     <div id="timerDisplay" class="text-5xl font-mono mb-4 cursor-pointer" onclick="setTimer()">00:00</div>
-    <div class="flex justify-center space-x-4">
-      <button id="startBtn" onclick="startTimer()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
-      <button id="resetBtn" onclick="resetTimer()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
-      <button id="muteBtn" onclick="toggleMute()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Unmute</button>
+    <div id="controls" class="flex flex-col items-center space-y-4">
+      <input id="videoIdInput" type="text" placeholder="Enter YouTube Video ID" class="p-2 w-full text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button onclick="loadVideo()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Load Video</button>
+      <div class="flex justify-center space-x-4">
+        <button id="startBtn" onclick="startTimer()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Start</button>
+        <button id="resetBtn" onclick="resetTimer()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset</button>
+        <button id="muteBtn" onclick="toggleMute()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path id="muteIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707a1 1 0 011.707.707v12a1 1 0 01-1.707.707L5.586 15zM15 12h6"></path>
+          </svg>
+        </button>
+      </div>
+      <button id="hideControlsBtn" onclick="toggleControls()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Hide Controls</button>
+      <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes" class="p-2 w-full text-black rounded hidden focus:outline-none focus:ring-2 focus:ring-blue-500">
     </div>
-    <input id="timeInput" type="number" min="1" max="60" placeholder="Enter minutes" class="mt-4 p-2 w-full text-black rounded hidden focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <button id="showControlsBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 hidden mt-4">Show Controls</button>
   </div>
 
   <!-- Audio for Alarm -->
@@ -31,11 +40,17 @@
     let timeLeft = 0; // Time in seconds
     let isRunning = false;
     let player;
+    let controlsVisible = true;
     const timerDisplay = document.getElementById('timerDisplay');
     const timeInput = document.getElementById('timeInput');
+    const videoIdInput = document.getElementById('videoIdInput');
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
     const muteBtn = document.getElementById('muteBtn');
+    const muteIcon = document.getElementById('muteIcon');
+    const hideControlsBtn = document.getElementById('hideControlsBtn');
+    const showControlsBtn = document.getElementById('showControlsBtn');
+    const controls = document.getElementById('controls');
     const alarmSound = document.getElementById('alarmSound');
 
     // YouTube IFrame API
@@ -43,12 +58,12 @@
       player = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: 'EoIU_JU2bHY', // Replace with desired YouTube video ID
+        videoId: 'dQw4w9WgXcQ', // Default video ID
         playerVars: {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: 'EoIU_JU2bHY', // Same video ID for looping
+          playlist: 'dQw4w9WgXcQ', // Same video ID for looping
           modestbranding: 1,
           mute: 1 // Start muted to comply with autoplay policies
         },
@@ -69,13 +84,39 @@
       }
     }
 
+    function loadVideo() {
+      const videoId = videoIdInput.value.trim();
+      if (videoId) {
+        player.loadVideoById({
+          videoId: videoId,
+          suggestedQuality: 'hd720'
+        });
+        player.setLoop(true);
+        player.mute(); // Ensure muted on load
+        muteIcon.setAttribute('d', 'M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707a1 1 0 011.707.707v12a1 1 0 01-1.707.707L5.586 15zM15 12h6');
+        videoIdInput.value = '';
+      }
+    }
+
     function toggleMute() {
       if (player.isMuted()) {
         player.unMute();
-        muteBtn.textContent = 'Mute';
+        muteIcon.setAttribute('d', 'M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707a1 1 0 011.707.707v12a1 1 0 01-1.707.707L5.586 15zM15 9a3 3 0 010 6');
       } else {
         player.mute();
-        muteBtn.textContent = 'Unmute';
+        muteIcon.setAttribute('d', 'M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707a1 1 0 011.707.707v12a1 1 0 01-1.707.707L5.586 15zM15 12h6');
+      }
+    }
+
+    function toggleControls() {
+      if (controlsVisible) {
+        controls.classList.add('hidden');
+        showControlsBtn.classList.remove('hidden');
+        controlsVisible = false;
+      } else {
+        controls.classList.remove('hidden');
+        showControlsBtn.classList.add('hidden');
+        controlsVisible = true;
       }
     }
 
