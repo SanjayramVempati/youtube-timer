@@ -1,4 +1,6 @@
 <script type="text/javascript">
+  var videoID = "rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH";
+  var videoPlaylist = "rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH"
   var gk_isXlsx = false;
   var gk_xlsxFileLookup = {};
   var gk_fileData = {};
@@ -86,12 +88,12 @@
       player = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: 'rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH', // Replace with desired YouTube video ID
+        videoId: videoID, // Replace with desired YouTube video ID
         playerVars: {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: 'rkZAA11fNcI&list=PLdz08PkxiY8mOGTI9aVx0CwEi9LmIzeQH', // Same video ID for looping
+          playlist: videoPlaylist, // Same video ID for looping
           modestbranding: 1,
           mute: 0
         },
